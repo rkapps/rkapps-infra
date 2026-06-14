@@ -15,6 +15,8 @@ SCRIPTS=(
   "scripts/deploy-pipeline.sh"
   "scripts/deploy-jobs.sh"
   "scripts/deploy-schedulers.sh"
+  "scripts/deploy-vm.sh"
+  "scripts/destroy-vm.sh"  
 )
 
 for script in "${SCRIPTS[@]}"; do

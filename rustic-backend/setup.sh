@@ -1,9 +1,13 @@
-#!/bin/bash
-source $(dirname $0)/config.sh $1
+ORG_ID="1032448450426"
+PROJECT_ID="rustic-ai-rkapps"
+RUSTIC_AI_FIREBASE_PROJECT_ID=$PROJECT_ID
+REGION="us-central1"
+IMAGE_REGISTRY="us-central1-docker.pkg.dev/$PROJECT_ID"
+SCHEDULER_SA="cloud-scheduler-sa@$PROJECT_ID.iam.gserviceaccount.com"
 
-echo "Project ID: $PROJECT_ID"
+RUST_LOG_VALUE="rustic_ai_services=info,agentic_core=info,rustic_ai_api=info"
+echo "Compute SA: $COMPUTE_SA"
 
-# Login
 gcloud auth login
 
 # Create project only if it doesn't exist
@@ -12,7 +16,7 @@ if gcloud projects describe $PROJECT_ID &>/dev/null; then
 else
   echo "Creating project $PROJECT_ID..."
   gcloud projects create $PROJECT_ID \
-    --name "Fin Tracker $ENV" \
+    --name "Rustic AI Demo" \
     --organization $ORG_ID
 fi
 
@@ -44,9 +48,12 @@ else
   echo "Billing already active, skipping..."
 fi
 
-# Get project number
-PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format="value(projectNumber)")
-COMPUTE_SA="$PROJECT_NUMBER-compute@developer.gserviceaccount.com"
+
+#cd /media/raghu/data2/Workspace/Projects/fin-tracker-backend-rs
+COMPUTE_SA_NUMBER=$(gcloud projects describe $PROJECT_ID --format="value(projectNumber)")
+COMPUTE_SA="$COMPUTE_SA_NUMBER-compute@developer.gserviceaccount.com"
+
+
 
 # Enable APIs (safe to run multiple times)
 gcloud services enable \
@@ -59,7 +66,6 @@ gcloud services enable \
   storage.googleapis.com
 
 echo "Waiting for APIs to propagate..."
-sleep 60
 
 # Grant roles (safe to run multiple times - adds if not exists)
 gcloud projects add-iam-policy-binding $PROJECT_ID \
@@ -92,38 +98,30 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
   --member="serviceAccount:cloud-scheduler-sa@$PROJECT_ID.iam.gserviceaccount.com" \
   --role="roles/run.admin"
 
-# Create Artifact Registry repositories (skip if exists)
-gcloud artifacts repositories create fin-tracker-go-api \
-  --repository-format=docker \
-  --location=$REGION \
-  --quiet 2>/dev/null || echo "fin-tracker-go-api repository already exists, skipping..."
-
-gcloud artifacts repositories create fin-tracker-api \
-  --repository-format=docker \
-  --location=$REGION \
-  --quiet 2>/dev/null || echo "fin-tracker-api repository already exists, skipping..."
-
-gcloud artifacts repositories create fin-tracker-pipeline \
-  --repository-format=docker \
-  --location=$REGION \
-  --quiet 2>/dev/null || echo "fin-tracker-pipeline repository already exists, skipping..."
-
-gcloud artifacts repositories create fin-tracker-admin \
-  --repository-format=docker \
-  --location=$REGION \
-  --quiet 2>/dev/null || echo "fin-tracker-admin repository already exists, skipping..."
-
 # Create GCS bucket (skip if exists)
-gcloud storage buckets create gs://fin-tracker-data-$ENV \
+gcloud storage buckets create gs://$PROJECT_ID-data \
   --location $REGION \
   --project $PROJECT_ID \
-  --quiet 2>/dev/null || echo "Bucket fin-tracker-data-$ENV already exists, skipping..."
+  --quiet 2>/dev/null || echo "Bucket $PROJECT_ID-data already exists, skipping..."
 
 # Grant compute service account access to bucket
-gcloud storage buckets add-iam-policy-binding gs://fin-tracker-data-$ENV \
+gcloud storage buckets add-iam-policy-binding gs://$PROJECT_ID-data \
   --member="serviceAccount:$COMPUTE_SA" \
   --role="roles/storage.objectViewer"  
 
-echo "Setup complete for $PROJECT_ID"
-echo "Project number: $PROJECT_NUMBER"
-echo "Compute SA: $COMPUTE_SA"
+
+# ✅ Check first, create only if missing, fail loudly if creation fails
+echo "Checking Artifact Registry repository..."
+if ! gcloud artifacts repositories describe rustic-ai-api \
+  --location=us-central1 \
+  --project=$PROJECT_ID &>/dev/null; then
+
+  echo "Creating repository rustic-ai-api..."
+  gcloud artifacts repositories create rustic-ai-api \
+    --repository-format=docker \
+    --location=us-central1 \
+    --project=$PROJECT_ID
+  echo "✅ Repository created"
+else
+  echo "✅ Repository already exists"
+fi
