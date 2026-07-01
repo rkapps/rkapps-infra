@@ -1,6 +1,9 @@
 source config.sh
 
 RUST_LOG_VALUE="rustic_ai_api=info,rustic_boot=info,rustic_agent=info"
+OTEL_ENDPOINT="https://cloudtrace.googleapis.com"
+
+#OTEL_ENDPOINT=https://cloudtrace.googleapis.com/v2/projects/YOUR_PROJECT_ID/traces
 
 # cd to the project source path.
 cd $RUSTIC_AI_PROJECT_SOURCE_PATH
@@ -50,6 +53,7 @@ docker build -f Dockerfile.api \
         --set-env-vars CENSUS_API_KEY=$CENSUS_API_KEY \
         --set-env-vars BEA_API_KEY=$BEA_API_KEY \
         --set-env-vars APIFY_API_KEY=$APIFY_API_KEY \
+        --set-env-vars OTEL_ENDPOINT=$OTEL_ENDPOINT \
         --set-env-vars "^|^RUST_LOG=$RUST_LOG_VALUE" \
         --set-env-vars LOG_FORMAT=json
 
