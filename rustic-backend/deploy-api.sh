@@ -1,9 +1,8 @@
 source config.sh
 
-RUST_LOG_VALUE="rustic_ai_api=info,rustic_boot=info,rustic_agent=info"
+RUST_LOG_VALUE="rustic_ai_api=info,bin_shared=info,rustic_boot=info,rustic_agent=info,rustic_core=trace"
 OTEL_ENDPOINT="https://cloudtrace.googleapis.com"
-
-#OTEL_ENDPOINT=https://cloudtrace.googleapis.com/v2/projects/YOUR_PROJECT_ID/traces
+RUSTIC_AI_ECONOMIC_CONFIG_USAGE_FILE="economic_config_furniture.json"
 
 # cd to the project source path.
 cd $RUSTIC_AI_PROJECT_SOURCE_PATH
@@ -38,21 +37,28 @@ docker build -f Dockerfile.api \
         --image $IMAGE_REGISTRY/rustic-backend/rustic-ai-api \
         --region us-central1 \
         --allow-unauthenticated \
-        --set-env-vars RUSTIC_AI_PROJECT_ID=$PROJECT_ID \
-        --set-env-vars RUSTIC_AI_CONFIG_PATH=$RUSTIC_AI_CONFIG_PATH \
-        --set-env-vars MONGO_URI=$MONGO_URI \
-        --set-env-vars RUSTIC_FINANCE_DB_NAME=$RUSTIC_FINANCE_DB_NAME \
-        --set-env-vars RUSTIC_ECONOMIC_DB_NAME=$RUSTIC_ECONOMIC_DB_NAME \
-        --set-env-vars RUSTIC_PLATFORM_DB_NAME=$RUSTIC_PLATFORM_DB_NAME \
-        --set-env-vars RUSTIC_AI_BSET_DATA_PATH=$RUSTIC_AI_BSET_DATA_PATH \
-        --set-env-vars GCP_LLM_BASE_URL=$GCP_LLM_BASE_URL \
-        --set-env-vars OPENAI_API_KEY=$OPENAI_API_KEY \
-        --set-env-vars GEMINI_API_KEY=$GEMINI_API_KEY \
-        --set-env-vars ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY \
-        --set-env-vars FRED_API_KEY=$FRED_API_KEY \
-        --set-env-vars CENSUS_API_KEY=$CENSUS_API_KEY \
-        --set-env-vars BEA_API_KEY=$BEA_API_KEY \
-        --set-env-vars APIFY_API_KEY=$APIFY_API_KEY \
+        --set-secrets RUSTIC_CORE_MONGO_URI=RUSTIC_CORE_MONGO_URI:latest \
+        --set-secrets RUSTIC_CLIENT_MONGO_URI=RUSTIC_CLIENT_MONGO_URI:latest \
+        --set-secrets RUSTIC_AI_PROJECT_ID=RUSTIC_AI_PROJECT_ID:latest \
+        --set-secrets RUSTIC_AI_CONFIG_PATH=RUSTIC_AI_CONFIG_PATH:latest \
+        --set-secrets RUSTIC_ECONOMIC_DB_NAME=RUSTIC_ECONOMIC_DB_NAME:latest \
+        --set-secrets RUSTIC_FINANCE_DB_NAME=RUSTIC_FINANCE_DB_NAME:latest \
+        --set-secrets RUSTIC_PLATFORM_DB_NAME=RUSTIC_PLATFORM_DB_NAME:latest \
+        --set-secrets OPENAI_API_KEY=OPENAI_API_KEY:latest \
+        --set-secrets GEMINI_API_KEY=GEMINI_API_KEY:latest \
+        --set-secrets ANTHROPIC_API_KEY=ANTHROPIC_API_KEY:latest \
+        --set-secrets TOGETHER_API_KEY=TOGETHER_API_KEY:latest \
+        --set-secrets FIREWORKS_API_KEY=FIREWORKS_API_KEY:latest \
+        --set-secrets MISTRAL_API_KEY=MISTRAL_API_KEY:latest \
+        --set-secrets GROQ_API_KEY=GROQ_API_KEY:latest \
+        --set-secrets CEREBRAS_API_KEY=CEREBRAS_API_KEY:latest \
+        --set-secrets AKASHML_API_KEY=AKASHML_API_KEY:latest \
+        --set-secrets ASIONE_API_KEY=ASIONE_API_KEY:latest \
+        --set-secrets FRED_API_KEY=FRED_API_KEY:latest \
+        --set-secrets CENSUS_API_KEY=CENSUS_API_KEY:latest \
+        --set-secrets BEA_API_KEY=BEA_API_KEY:latest \
+        --set-secrets TAVILY_API_KEY=TAVILY_API_KEY:latest \
+        --set-env-vars RUSTIC_AI_ECONOMIC_CONFIG_USAGE_FILE=$RUSTIC_AI_ECONOMIC_CONFIG_USAGE_FILE \
         --set-env-vars OTEL_ENDPOINT=$OTEL_ENDPOINT \
         --set-env-vars "^|^RUST_LOG=$RUST_LOG_VALUE" \
         --set-env-vars LOG_FORMAT=json
