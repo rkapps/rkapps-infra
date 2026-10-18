@@ -1,7 +1,7 @@
 #!/bin/bash
 # deploy-go-api.sh
 source $(dirname $0)/config.sh $1
-LOG_LEVELS="DEBUG"
+LOG_LEVELS="INFO"
 
 cd /media/raghu/data2/Workspace/Projects/fin-tracker-backend-go
 
@@ -23,12 +23,12 @@ docker build --no-cache -f Dockerfile.goapi \
     --max-instances 3 \
     --concurrency 80 \
     --timeout 60 \
-    --set-env-vars FIREBASE_PROJECT_ID=$PROJECT_ID \
-    --set-env-vars FINTRACKER_PROJECT_ID=$FINTRACKER_PROJECT_ID \
-    --set-env-vars FINTRACKER_MONGO_URI=$FINTRACKER_MONGO_URI \
-    --set-env-vars FINTRACKER_DB_NAME=$FINTRACKER_DB_NAME \
-    --set-env-vars RUSTIC_FINANCE_MONGO_URI=$RUSTIC_FINANCE_MONGO_URI \
-    --set-env-vars RUSTIC_FINANCE_DB_NAME=$RUSTIC_FINANCE_DB_NAME \
+    --set-secrets FINTRACKER_DB_NAME=FINTRACKER_DB_NAME:latest \
+    --set-secrets FINTRACKER_MONGO_URI=FINTRACKER_MONGO_URI:latest \
+    --set-secrets FINTRACKER_PROJECT_ID=FINTRACKER_PROJECT_ID:latest \
+    --set-secrets FINTRACKER_CREDENTIAL_ENCRYPTION_KEY=FINTRACKER_CREDENTIAL_ENCRYPTION_KEY:latest \
+    --set-secrets RUSTIC_FINANCE_DB_NAME=RUSTIC_FINANCE_DB_NAME:latest \
+    --set-secrets RUSTIC_FINANCE_MONGO_URI=RUSTIC_FINANCE_MONGO_URI:latest \
     --set-env-vars LOG_LEVELS=$LOG_LEVELS \
     --set-env-vars LOG_FORMAT=json
     

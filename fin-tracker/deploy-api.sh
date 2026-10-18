@@ -1,7 +1,8 @@
 #!/bin/bash
 # deploy-api.sh
 source $(dirname $0)/config.sh $1
-RUST_LOG_VALUE="fin_services=info,fin_core=info,fin_tracker_api=info,agentic_boot=info"
+RUST_LOG_VALUE="fin_tracker_api=info,rustic_boot=info,rustic_agent=info,rustic_finance=info"
+OTEL_ENDPOINT="https://cloudtrace.googleapis.com"
 
 cd /media/raghu/data2/Workspace/Projects/fin-tracker-backend-rs
 
@@ -19,13 +20,19 @@ docker build --no-cache -f Dockerfile.api \
         --image $IMAGE_REGISTRY/fin-tracker-api/fin-tracker-api \
         --region us-central1 \
         --allow-unauthenticated \
-        --set-env-vars FINTRACKER_CONFIG_PATH=$FINTRACKER_CONFIG_PATH \
-        --set-env-vars FINTRACKER_PROJECT_ID=$FINTRACKER_PROJECT_ID \
-        --set-env-vars RUSTIC_FINANCE_DB_NAME=$RUSTIC_FINANCE_DB_NAME \
-        --set-env-vars GCP_LLM_BASE_URL=$GCP_LLM_BASE_URL \
-        --set-env-vars MONGO_URI=$MONGO_URI \
-        --set-env-vars OPENAI_API_KEY=$OPENAI_API_KEY \
-        --set-env-vars GEMINI_API_KEY=$GEMINI_API_KEY \
-        --set-env-vars ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY \
+        --set-secrets FINTRACKER_CONFIG_PATH=FINTRACKER_CONFIG_PATH:latest \
+        --set-secrets FINTRACKER_PROJECT_ID=FINTRACKER_PROJECT_ID:latest \
+        --set-secrets RUSTIC_FINANCE_DB_NAME=RUSTIC_FINANCE_DB_NAME:latest \
+        --set-secrets RUSTIC_FINANCE_MONGO_URI=RUSTIC_FINANCE_MONGO_URI:latest \
+        --set-secrets AKASHML_API_KEY=AKASHML_API_KEY:latest \
+        --set-secrets ANTHROPIC_API_KEY=ANTHROPIC_API_KEY:latest \
+        --set-secrets ASIONE_API_KEY=ASIONE_API_KEY:latest \
+        --set-secrets CEREBRAS_API_KEY=CEREBRAS_API_KEY:latest \
+        --set-secrets FIREWORKS_API_KEY=FIREWORKS_API_KEY:latest \
+        --set-secrets GEMINI_API_KEY=GEMINI_API_KEY:latest \
+        --set-secrets MISTRAL_API_KEY=MISTRAL_API_KEY:latest \
+        --set-secrets OPENAI_API_KEY=OPENAI_API_KEY:latest \
+        --set-secrets TOGETHER_API_KEY=TOGETHER_API_KEY:latest \
+        --set-env-vars OTEL_ENDPOINT=$OTEL_ENDPOINT \
         --set-env-vars "^|^RUST_LOG=$RUST_LOG_VALUE" \
         --set-env-vars LOG_FORMAT=json
