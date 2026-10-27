@@ -1,6 +1,6 @@
 source config.sh
 
-RUST_LOG_VALUE="rustic_ai_api=info,bin_shared=info,rustic_boot=info,rustic_agent=info,rustic_core=trace"
+RUST_LOG_VALUE="RUST_LOG=warn,rustic_boot=info,rustic_ai_api=info"
 OTEL_ENDPOINT="https://cloudtrace.googleapis.com"
 RUSTIC_AI_ECONOMIC_CONFIG_USAGE_FILE="economic_config_furniture.json"
 
@@ -37,6 +37,7 @@ docker build -f Dockerfile.api \
         --image $IMAGE_REGISTRY/rustic-backend/rustic-ai-api \
         --region us-central1 \
         --allow-unauthenticated \
+        --no-cpu-throttling \
         --set-secrets RUSTIC_CORE_MONGO_URI=RUSTIC_CORE_MONGO_URI:latest \
         --set-secrets RUSTIC_CLIENT_MONGO_URI=RUSTIC_CLIENT_MONGO_URI:latest \
         --set-secrets RUSTIC_AI_PROJECT_ID=RUSTIC_AI_PROJECT_ID:latest \
